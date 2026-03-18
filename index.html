@@ -14,28 +14,28 @@
         
         h2 { font-size: 1.4rem; color: #333; margin-bottom: 25px; line-height: 1.5; word-break: keep-all; }
         
-        /* 버튼 스타일 */
         .options { display: grid; gap: 10px; }
         .btn-option { padding: 15px 4px; border: 2px solid #f2f2f2; border-radius: 15px; background: white; font-size: 1rem; cursor: pointer; transition: all 0.2s; color: #444; font-weight: 500; outline: none; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
-        .btn-option.active { border-color: var(--primary); background: #f0f7ff; color: var(--primary); font-weight: bold; }
+        .btn-option:hover { border-color: var(--primary); }
+        /* 선택되었을 때 강조 스타일 */
+        .btn-option.selected { border-color: var(--primary); background: #f0f7ff; color: var(--primary); font-weight: bold; box-shadow: 0 0 0 1px var(--primary); }
         
-        .btn-start { margin-top: 30px; width: 100%; padding: 18px; border: none; border-radius: 15px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); }
-        .btn-start:hover { background: #357abd; }
+        .btn-start { margin-top: 30px; width: 100%; padding: 18px; border: none; border-radius: 15px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-start:active { transform: scale(0.98); background: #357abd; }
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 
-        /* 결과/설문 컨테이너 */
         #survey-content, #result-container { display: none; }
         .big-score-num { font-size: 5rem; font-weight: 900; line-height: 1; margin: 15px 0; letter-spacing: -2px; }
         .result-card { text-align: left; background: #fff; border-radius: 20px; border: 2px solid #eee; overflow: hidden; }
         .result-header { padding: 18px; color: white; font-weight: bold; font-size: 1.25rem; text-align: center; }
         .result-body { padding: 25px; line-height: 1.8; color: #444; font-size: 1.05rem; }
 
-        /* 커스텀 경고창(모달) */
-        #custom-alert { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .alert-box { background: white; padding: 30px; border-radius: 20px; width: 80%; max-width: 300px; text-align: center; }
-        .btn-close { margin-top: 20px; padding: 10px 20px; border: none; background: var(--primary); color: white; border-radius: 10px; cursor: pointer; }
+        /* 커스텀 경고 모달창 */
+        #custom-alert-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999; }
+        .alert-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .btn-alert-confirm { margin-top: 20px; width: 100%; padding: 12px; border: none; background: var(--primary); color: white; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1rem; }
 
         .footer-logo { margin-top: 40px; padding-top: 20px; border-top: 1px solid #f0f0f0; }
         .logo-box { font-weight: 900; font-size: 1.4rem; color: #2c3e50; }
@@ -45,38 +45,41 @@
 <body>
 
 <div class="modal">
-    <!-- 초기 화면 -->
+    <!-- 1단계: 인트로 및 정보 선택 -->
     <div id="intro-content">
         <h2 style="color:var(--primary);">🌿 몸 건강 마음 건강<br>기혈 순환 자가 진단</h2>
+        
         <p style="text-align:left; font-size:0.9rem; font-weight:bold; margin-bottom:10px; color:#555;">• 성별 선택</p>
-        <div class="grid-2" id="gender-select" style="margin-bottom:25px;">
-            <button type="button" class="btn-option" onclick="setBasicInfo('gender', '남성', this)">남성</button>
-            <button type="button" class="btn-option" onclick="setBasicInfo('gender', '여성', this)">여성</button>
+        <div class="grid-2" style="margin-bottom:25px;" id="gender-group">
+            <button type="button" class="btn-option" onclick="handleBasicSelect(this, 'gender', '남성')">남성</button>
+            <button type="button" class="btn-option" onclick="handleBasicSelect(this, 'gender', '여성')">여성</button>
         </div>
+
         <p style="text-align:left; font-size:0.9rem; font-weight:bold; margin-bottom:10px; color:#555;">• 연령대 선택</p>
-        <div class="grid-3" id="age-select">
-            <button type="button" class="btn-option" onclick="setBasicInfo('age', '20대', this)">20대</button>
-            <button type="button" class="btn-option" onclick="setBasicInfo('age', '30대', this)">30대</button>
-            <button type="button" class="btn-option" onclick="setBasicInfo('age', '40대', this)">40대</button>
-            <button type="button" class="btn-option" onclick="setBasicInfo('age', '50대', this)">50대</button>
-            <button type="button" class="btn-option" onclick="setBasicInfo('age', '60대', this)">60대</button>
-            <button type="button" class="btn-option" onclick="setBasicInfo('age', '70대+', this)">70대+</button>
+        <div class="grid-3" id="age-group">
+            <button type="button" class="btn-option" onclick="handleBasicSelect(this, 'age', '20대')">20대</button>
+            <button type="button" class="btn-option" onclick="handleBasicSelect(this, 'age', '30대')">30대</button>
+            <button type="button" class="btn-option" onclick="handleBasicSelect(this, 'age', '40대')">40대</button>
+            <button type="button" class="btn-option" onclick="handleBasicSelect(this, 'age', '50대')">50대</button>
+            <button type="button" class="btn-option" onclick="handleBasicSelect(this, 'age', '60대')">60대</button>
+            <button type="button" class="btn-option" onclick="handleBasicSelect(this, 'age', '70대+')">70대+</button>
         </div>
-        <button class="btn-start" onclick="startSurvey()">진단 시작하기</button>
+
+        <button type="button" class="btn-start" onclick="checkAndStart()">진단 시작하기</button>
     </div>
 
-    <!-- 설문 화면 -->
+    <!-- 2단계: 설문 문항 -->
     <div id="survey-content">
         <div class="progress-bar" id="p-bar" style="display:block;"><div class="progress-fill" id="progress"></div></div>
         <h2 id="question-text"></h2>
         <div class="options" id="options-container"></div>
     </div>
 
-    <!-- 결과 화면 -->
+    <!-- 3단계: 결과 리포트 -->
     <div id="result-container">
         <div class="big-score-area">
             <span style="font-size:1.1rem; color:#666; font-weight:bold;">나의 기혈 순환 점수</span>
-            <div class="big-score-num" id="final-score-val" style="color:var(--primary);">0<span style="font-size:1.4rem;">점</span></div>
+            <div class="big-score-num" id="final-score-val">0<span style="font-size:1.4rem;">점</span></div>
         </div>
         <div class="result-card" id="result-card">
             <div class="result-header" id="result-header">진단 결과</div>
@@ -88,27 +91,28 @@
         <button onclick="location.reload()" style="margin-top:25px; padding:12px 30px; border:none; background:#eee; border-radius:30px; cursor:pointer; font-weight:bold; color:#777;">다시 하기</button>
     </div>
 
+    <!-- 하단 브랜딩 -->
     <div class="footer-logo">
         <div class="logo-box">MLCC</div>
         <div class="logo-subtext">마인드 셋 라이프 코칭센터</div>
     </div>
 </div>
 
-<!-- 알림 모달 -->
-<div id="custom-alert">
+<!-- 경고창 모달 레이어 -->
+<div id="custom-alert-overlay">
     <div class="alert-box">
-        <p style="font-weight:bold; font-size:1.1rem; line-height:1.4;">성별과 연령대를<br>모두 선택해주세요!</p>
-        <button class="btn-close" onclick="closeAlert()">확인</button>
+        <p style="font-weight:bold; font-size:1.1rem; line-height:1.5; color:#333;">성별과 연령대를<br>모두 선택해주세요!</p>
+        <button type="button" class="btn-alert-confirm" onclick="hideMyAlert()">확인</button>
     </div>
 </div>
 
 <script>
-    var userData = { gender: '', age: '' };
-    var currentIdx = 0;
-    var totalScore = 0;
-    var maxPossibleRawScore = 12;
+    // 전역 상태 변수
+    var selectionData = { gender: null, age: null };
+    var currentStep = 0;
+    var scoreSum = 0;
 
-    var questions = [
+    var surveyList = [
         {"q": "1. 충분히 자도 아침에 몸이 무겁고 머리가 맑지 않은가요?", "a": ["매우 그렇다", "가끔 그렇다", "거의 없다"], "s":},
         {"q": "2. 식사 후 소화가 안 되거나 가스가 자주 차나요?", "a": ["자주 그렇다", "가끔 그렇다", "거의 없음"], "s":},
         {"q": "3. 손발이 차거나 특정 부위가 자주 붓는 편인가요?", "a": ["매우 그렇다", "가끔 그렇다", "거의 없다"], "s":},
@@ -118,81 +122,104 @@
         {"q": "7. 일주일간 운동을 하는 횟수는?", "a": ["거의 안 함", "1~2회", "3회 이상"], "s":}
     ];
 
-    function setBasicInfo(key, value, btn) {
-        userData[key] = value;
-        var parent = btn.parentElement;
-        var siblingBtns = parent.querySelectorAll('.btn-option');
-        siblingBtns.forEach(function(b){ b.classList.remove('active'); });
-        btn.classList.add('active');
-    }
-
-    function startSurvey() {
-        if(!userData.gender || !userData.age) {
-            document.getElementById('custom-alert').style.display = 'flex';
-            return;
+    // 성별/연령대 버튼 클릭 처리
+    function handleBasicSelect(btnElement, type, val) {
+        // 해당 그룹 내 모든 버튼의 'selected' 클래스 제거
+        var group = btnElement.parentElement;
+        var buttons = group.querySelectorAll('.btn-option');
+        for(var i=0; i<buttons.length; i++) {
+            buttons[i].classList.remove('selected');
         }
-        document.getElementById('intro-content').style.display = 'none';
-        document.getElementById('survey-content').style.display = 'block';
-        showQuestion();
+        // 클릭한 버튼에 'selected' 클래스 추가 및 데이터 저장
+        btnElement.classList.add('selected');
+        selectionData[type] = val;
     }
 
-    function closeAlert() { document.getElementById('custom-alert').style.display = 'none'; }
+    // 진단 시작하기 버튼 클릭 처리
+    function checkAndStart() {
+        if (!selectionData.gender || !selectionData.age) {
+            // 모달 알림 띄우기
+            document.getElementById('custom-alert-overlay').style.display = 'flex';
+        } else {
+            // 설문 화면으로 전환
+            document.getElementById('intro-content').style.display = 'none';
+            document.getElementById('survey-content').style.display = 'block';
+            renderSurvey();
+        }
+    }
 
-    function showQuestion() {
-        var qObj = questions[currentIdx];
-        document.getElementById('question-text').innerText = qObj.q;
-        var container = document.getElementById('options-container');
-        container.innerHTML = '';
-        document.getElementById('progress').style.width = ((currentIdx + 1) / questions.length * 100) + '%';
-        for(var i=0; i<qObj.a.length; i++) {
+    // 알림창 닫기
+    function hideMyAlert() {
+        document.getElementById('custom-alert-overlay').style.display = 'none';
+    }
+
+    // 설문 문항 출력
+    function renderSurvey() {
+        var currentQ = surveyList[currentStep];
+        document.getElementById('question-text').innerText = currentQ.q;
+        
+        var optionsDiv = document.getElementById('options-container');
+        optionsDiv.innerHTML = ''; // 초기화
+        
+        // 진행률 표시
+        document.getElementById('progress').style.width = ((currentStep + 1) / surveyList.length * 100) + '%';
+
+        for(var j=0; j < currentQ.a.length; j++) {
             (function(idx) {
-                var btn = document.createElement('button');
-                btn.type = "button";
-                btn.className = 'btn-option';
-                btn.innerText = qObj.a[idx];
-                btn.onclick = function() { nextStep(qObj.s[idx]); };
-                container.appendChild(btn);
-            })(i);
+                var b = document.createElement('button');
+                b.type = "button";
+                b.className = 'btn-option';
+                b.innerText = currentQ.a[idx];
+                b.onclick = function() { processNext(currentQ.s[idx]); };
+                optionsDiv.appendChild(b);
+            })(j);
         }
     }
 
-    function nextStep(score) {
-        totalScore += score;
-        currentIdx++;
-        if(currentIdx < questions.length) showQuestion();
-        else displayResult();
+    // 다음 문항 처리
+    function processNext(point) {
+        scoreSum += point;
+        currentStep++;
+        
+        if (currentStep < surveyList.length) {
+            renderSurvey();
+        } else {
+            showFinalResult();
+        }
     }
 
-    function displayResult() {
+    // 결과 출력
+    function showFinalResult() {
         document.getElementById('survey-content').style.display = 'none';
         document.getElementById('result-container').style.display = 'block';
-        var finalScore100 = Math.round((totalScore / maxPossibleRawScore) * 100);
-        if(finalScore100 > 100) finalScore100 = 100;
         
-        var scoreVal = document.getElementById('final-score-val');
-        var header = document.getElementById('result-header');
-        var advice = document.getElementById('advice-text');
+        var totalScore100 = Math.round((scoreSum / 12) * 100);
+        if(totalScore100 > 100) totalScore100 = 100;
+        
+        var scoreDisplay = document.getElementById('final-score-val');
+        var head = document.getElementById('result-header');
         var card = document.getElementById('result-card');
-
-        scoreVal.innerHTML = finalScore100 + '<span style="font-size:1.4rem; margin-left:2px;">점</span>';
-        document.getElementById('user-info-text').innerText = userData.age + " " + userData.gender + " 참가자 분석 리포트";
+        var advice = document.getElementById('advice-text');
         
-        if (finalScore100 >= 80) {
-            header.innerText = "✅ 비교적 양호";
-            header.style.backgroundColor = "var(--success)";
-            scoreVal.style.color = "var(--success)";
+        scoreDisplay.innerHTML = totalScore100 + '<span style="font-size:1.4rem; margin-left:2px;">점</span>';
+        document.getElementById('user-info-text').innerText = selectionData.age + " " + selectionData.gender + " 참가자 분석 리포트";
+
+        if (totalScore100 >= 80) {
+            head.innerText = "✅ 비교적 양호";
+            head.style.backgroundColor = "var(--success)";
+            scoreDisplay.style.color = "var(--success)";
             card.style.borderColor = "var(--success)";
             advice.innerHTML = "기혈 흐름이 원활합니다! 세미나를 통해 <b>'더 맑은 기운을 유지하는 법'</b>을 익혀보세요.";
-        } else if (finalScore100 >= 50) {
-            header.innerText = "⚠️ 에너지 불균형";
-            header.style.backgroundColor = "var(--warning)";
-            scoreVal.style.color = "var(--warning)";
+        } else if (totalScore100 >= 50) {
+            head.innerText = "⚠️ 에너지 불균형";
+            head.style.backgroundColor = "var(--warning)";
+            scoreDisplay.style.color = "var(--warning)";
             card.style.borderColor = "var(--warning)";
             advice.innerHTML = "순환 기운이 불안정합니다. <b>'일상적인 자가 순환 관리'</b>를 습관화하여 기운을 북돋아 주세요.";
         } else {
-            header.innerText = "🚨 기혈 정체 주의";
-            header.style.backgroundColor = "var(--danger)";
-            scoreVal.style.color = "var(--danger)";
+            head.innerText = "🚨 기혈 정체 주의";
+            head.style.backgroundColor = "var(--danger)";
+            scoreDisplay.style.color = "var(--danger)";
             card.style.borderColor = "var(--danger)";
             advice.innerHTML = "순환이 정체된 상태입니다. 세미나에서 배울 <b>'기운을 뚫어주는 경락법'</b>이 참가자님께 꼭 필요합니다.";
         }
