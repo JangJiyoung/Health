@@ -4,29 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>몸 건강 마음 건강 자가진단 - MLCC</title>
+    <!-- SweetAlert2 라이브러리 -->
+    <!--<script src="https://cdn.jsdelivr.net"></script> -->
     <style>
         :root { --danger: #ff4d4f; --warning: #faad14; --success: #52c41a; --primary: #4a90e2; --bg: #f0f4f8; }
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         .modal { background: white; width: 100%; max-width: 450px; padding: 40px 25px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); text-align: center; }
         
-        .progress-bar { width: 100%; height: 6px; background: #eee; border-radius: 10px; margin-bottom: 30px; overflow: hidden; display: none; }
-        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s ease; }
-        
-        h2 { font-size: 1.35rem; color: #333; margin-bottom: 25px; line-height: 1.5; word-break: keep-all; }
-        
+        /* 버튼 및 활성화 스타일 */
         .options { display: grid; gap: 10px; }
         .btn-option { padding: 16px 4px; border: 2px solid #f2f2f2; border-radius: 15px; background: white; font-size: 1rem; cursor: pointer; transition: all 0.2s; color: #444; font-weight: 500; outline: none; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
         .btn-option:hover { border-color: var(--primary); }
-        .btn-option.selected { border-color: var(--primary); background: #f0f7ff; color: var(--primary); font-weight: bold; }
+        .btn-option.active { border-color: var(--primary) !important; background-color: #f0f7ff !important; color: var(--primary) !important; font-weight: bold; }
         
         .btn-start { margin-top: 30px; width: 100%; padding: 18px; border: none; border-radius: 15px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-start:active { transform: scale(0.98); background: #357abd; }
 
+        h2 { font-size: 1.35rem; color: #333; margin-bottom: 25px; line-height: 1.5; word-break: keep-all; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 
+        /* 영역 제어 */
         #survey-area, #result-area { display: none; }
-        .big-score-num { font-size: 5rem; font-weight: 900; line-height: 1; margin: 15px 0; letter-spacing: -2px; }
+        
+        /* 설문 UI */
+        .progress-container { width: 100%; height: 6px; background: #eee; border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s ease; }
+
+        /* 결과 UI */
+        .big-score-num { font-size: 5.5rem; font-weight: 900; line-height: 1; margin: 15px 0; letter-spacing: -2px; }
         .result-card { text-align: left; background: #fff; border-radius: 20px; border: 2px solid #eee; overflow: hidden; }
         .result-header { padding: 18px; color: white; font-weight: bold; font-size: 1.25rem; text-align: center; }
         .result-body { padding: 25px; line-height: 1.8; color: #444; font-size: 1.05rem; }
@@ -36,46 +42,45 @@
         .logo-subtext { font-size: 0.85rem; color: #aaa; margin-top: 5px; }
     </style>
 </head>
-<!-- SweetAlert2 라이브러리 추가 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <body>
 
 <div class="modal">
-    <!-- 1단계: 인트로 영역 -->
+    <!-- [인트로 영역] -->
     <div id="intro-area">
         <h2 style="color:var(--primary);">🌿 몸 건강 마음 건강<br>기혈 순환 자가 진단</h2>
         
         <p style="text-align:left; font-size:0.9rem; font-weight:bold; margin-bottom:10px; color:#555;">• 성별 선택</p>
         <div class="grid-2" style="margin-bottom:25px;">
-            <button type="button" class="btn-option" onclick="selectBasic(this, 'gender', '남성')">남성</button>
-            <button type="button" class="btn-option" onclick="selectBasic(this, 'gender', '여성')">여성</button>
+            <button type="button" class="btn-option gender-btn" onclick="selectBasic(this, 'gender', '남성')">남성</button>
+            <button type="button" class="btn-option gender-btn" onclick="selectBasic(this, 'gender', '여성')">여성</button>
         </div>
 
         <p style="text-align:left; font-size:0.9rem; font-weight:bold; margin-bottom:10px; color:#555;">• 연령대 선택</p>
         <div class="grid-3">
-            <button type="button" class="btn-option" onclick="selectBasic(this, 'age', '20대')">20대</button>
-            <button type="button" class="btn-option" onclick="selectBasic(this, 'age', '30대')">30대</button>
-            <button type="button" class="btn-option" onclick="selectBasic(this, 'age', '40대')">40대</button>
-            <button type="button" class="btn-option" onclick="selectBasic(this, 'age', '50대')">50대</button>
-            <button type="button" class="btn-option" onclick="selectBasic(this, 'age', '60대')">60대</button>
-            <button type="button" class="btn-option" onclick="selectBasic(this, 'age', '70대+')">70대+</button>
+            <button type="button" class="btn-option age-btn" onclick="selectBasic(this, 'age', '20대')">20대</button>
+            <button type="button" class="btn-option age-btn" onclick="selectBasic(this, 'age', '30대')">30대</button>
+            <button type="button" class="btn-option age-btn" onclick="selectBasic(this, 'age', '40대')">40대</button>
+            <button type="button" class="btn-option age-btn" onclick="selectBasic(this, 'age', '50대')">50대</button>
+            <button type="button" class="btn-option age-btn" onclick="selectBasic(this, 'age', '60대')">60대</button>
+            <button type="button" class="btn-option age-btn" onclick="selectBasic(this, 'age', '70대+')">70대+</button>
         </div>
 
         <button type="button" class="btn-start" onclick="startSurvey()">진단 시작하기</button>
     </div>
 
-    <!-- 2단계: 설문 영역 -->
+    <!-- [설문 영역] -->
     <div id="survey-area">
-        <div class="progress-bar" id="p-bar" style="display:block;"><div class="progress-fill" id="progress"></div></div>
+        <div class="progress-container"><div class="progress-bar" id="progress"></div></div>
         <h2 id="question-text"></h2>
         <div class="options" id="options-container"></div>
     </div>
 
-    <!-- 3단계: 결과 영역 -->
+    <!-- [결과 영역] -->
     <div id="result-area">
-        <div class="big-score-area">
+        <div style="margin-bottom:20px;">
             <span style="font-size:1.1rem; color:#666; font-weight:bold;">나의 기혈 순환 점수</span>
-            <div class="big-score-num" id="final-score-val">0<span style="font-size:1.4rem;">점</span></div>
+            <div class="big-score-num" id="final-score-val">0<span style="font-size:1.5rem; margin-left:5px;">점</span></div>
         </div>
         <div class="result-card" id="result-card">
             <div class="result-header" id="result-header">진단 결과</div>
@@ -94,8 +99,9 @@
 </div>
 
 <script>
+    // 전역 변수 및 데이터
     var userData = { gender: null, age: null };
-    var currentIdx = 0;
+    var currentIndex = 0;
     var totalScore = 0;
 
     var questions = [
@@ -108,26 +114,20 @@
         {"q": "7. 일주일간 운동을 하는 횟수는?", "a": ["거의 안 함", "1~2회", "3회 이상"], "s": [0, 1, 2]}
     ];
 
+    // 성별/연령대 선택 처리
     function selectBasic(btn, type, val) {
-        var buttons = btn.parentElement.querySelectorAll('.btn-option');
-        buttons.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
+        var groupClass = type === 'gender' ? '.gender-btn' : '.age-btn';
+        var btns = document.querySelectorAll(groupClass);
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        
+        btn.classList.add('active');
         userData[type] = val;
     }
 
-    // 요청하신 startSurvey 함수 수정 적용
+    // 요청하신 진단 시작 함수 (SweetAlert2 적용)
     function startSurvey() {
         if (!userData.gender || !userData.age) {
-            // SweetAlert2 경고창 실행
-            /*
-            Swal.fire({
-                title: '안녕하세요!',
-                text: '성별과 연령대를 모두 선택해주세요!',
-                icon: 'warning', // 문구에 맞게 warning 아이콘 추천 (success도 가능)
-                confirmButtonText: '확인',
-                confirmButtonColor: '#4a90e2'
-            });
-            */
+            // 요청하신 Swal 문법 적용
             Swal.fire('안녕하세요!', '성별과 연령대를 모두 선택해주세요!', 'success');
             return;
         }
@@ -136,64 +136,73 @@
         updateUI();
     }
 
+    // 설문 UI 업데이트 함수
     function updateUI() {
-        var q = questions[currentIdx];
-        document.getElementById('question-text').innerText = q.q;
-        var container = document.getElementById('options-container');
-        container.innerHTML = '';
-        
-        document.getElementById('progress').style.width = ((currentIdx + 1) / questions.length * 100) + '%';
+        const qText = document.getElementById('question-text');
+        const progress = document.getElementById('progress');
+        const optionsContainer = document.getElementById('options-container');
 
-        q.a.forEach((text, i) => {
-            var btn = document.createElement('button');
-            btn.type = "button";
-            btn.className = 'btn-option';
-            btn.innerText = text;
-            btn.onclick = () => next(q.s[i]);
-            container.appendChild(btn);
-        });
+        if (currentIndex < questions.length) {
+            var currentQ = questions[currentIndex];
+            qText.innerText = currentQ.q;
+            progress.style.width = ((currentIndex + 1) / questions.length * 100) + "%";
+
+            // 답변 버튼 생성
+            optionsContainer.innerHTML = '';
+            currentQ.a.forEach(function(text, i) {
+                var btn = document.createElement('button');
+                btn.type = "button";
+                btn.className = 'btn-option';
+                btn.innerText = text;
+                btn.onclick = function() { handleAnswer(currentQ.s[i]); };
+                optionsContainer.appendChild(btn);
+            });
+        } else {
+            showResult();
+        }
     }
 
-    function next(s) {
-        totalScore += s;
-        currentIdx++;
-        if(currentIdx < questions.length) updateUI();
-        else showResult();
+    // 답변 클릭 시 처리
+    function handleAnswer(score) {
+        totalScore += score;
+        currentIndex++;
+        updateUI();
     }
 
+    // 결과 출력 함수
     function showResult() {
         document.getElementById('survey-area').style.display = 'none';
         document.getElementById('result-area').style.display = 'block';
         
-        var score100 = Math.round((totalScore / 12) * 100);
-        if(score100 > 100) score100 = 100;
+        var final100 = Math.round((totalScore / 12) * 100); // 6개 유효문항 만점 12점 기준
+        if(final100 > 100) final100 = 100;
 
         var scoreVal = document.getElementById('final-score-val');
         var head = document.getElementById('result-header');
         var advice = document.getElementById('advice-text');
         var card = document.getElementById('result-card');
 
-        scoreVal.innerHTML = score100 + '<span style="font-size:1.4rem; margin-left:2px;">점</span>';
+        scoreVal.innerHTML = final100 + '<span style="font-size:1.5rem; margin-left:5px;">점</span>';
         document.getElementById('user-info-text').innerText = userData.age + " " + userData.gender + " 참가자 분석 리포트";
 
-        if (score100 >= 80) {
+        if (final100 >= 80) {
             head.innerText = "✅ 비교적 양호";
             head.style.backgroundColor = "var(--success)";
             scoreVal.style.color = "var(--success)";
             card.style.borderColor = "var(--success)";
-            advice.innerHTML = "기혈 흐름이 원활합니다! <b>'더 맑은 기운을 유지하는 법'</b>을 익혀보세요.";
-        } else if (score100 >= 50) {
+            advice.innerHTML = "기혈 흐름이 원활합니다! 세미나를 통해 <b>'더 맑은 기운을 유지하는 법'</b>을 익혀보세요.";
+        } else if (final100 >= 50) {
             head.innerText = "⚠️ 에너지 불균형";
             head.style.backgroundColor = "var(--warning)";
             scoreVal.style.color = "var(--warning)";
             card.style.borderColor = "var(--warning)";
-            advice.innerHTML = "순환 기운이 불안정합니다. <b>'일상적인 자가 관리'</b>를 통해 기운을 북돋아 주세요.";
+            advice.innerHTML = "순환 기운이 불안정합니다. <b>'일상적인 자가 순환 관리'</b>를 통해 기운을 북돋아 주세요.";
         } else {
             head.innerText = "🚨 기혈 정체 주의";
             head.style.backgroundColor = "var(--danger)";
             scoreVal.style.color = "var(--danger)";
             card.style.borderColor = "var(--danger)";
-            advice.innerHTML = "순환이 정체된 상태입니다. 세미나에서 배울 <b>'기운을 뚫어주는 경락법'</b>이 꼭 필요합니다.";
+            advice.innerHTML = "현재 순환이 정체된 상태입니다. 세미나에서 배울 <b>'기운을 즉각 뚫어주는 경락법'</b>이 꼭 필요합니다.";
         }
     }
 </script>
