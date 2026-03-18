@@ -119,6 +119,7 @@
     function startSurvey() {
         if (!userData.gender || !userData.age) {
             // SweetAlert2 경고창 실행
+            /*
             Swal.fire({
                 title: '안녕하세요!',
                 text: '성별과 연령대를 모두 선택해주세요!',
@@ -126,6 +127,8 @@
                 confirmButtonText: '확인',
                 confirmButtonColor: '#4a90e2'
             });
+            */
+            Swal.fire('안녕하세요!', '성별과 연령대를 모두 선택해주세요!', 'success');
             return;
         }
         document.getElementById('intro-area').style.display = 'none';
