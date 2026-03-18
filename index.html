@@ -109,9 +109,7 @@
         {"q": "2. 식사 후 소화가 안 되거나 가스가 자주 차나요?", "a": ["자주 그렇다", "가끔 그렇다", "거의 없음"], "s": [0, 1, 2]},
         {"q": "3. 손발이 차거나 특정 부위가 자주 붓는 편인가요?", "a": ["매우 그렇다", "가끔 그렇다", "거의 없다"], "s": [0, 1, 2]},
         {"q": "4. 어깨/목을 눌렀을 때 비명이 나올 만큼 아픈가요?", "a": ["예", "아니요"], "s": [0, 2]},
-        {"q": "5. 가장 고민되는 신체 불편 증상은?", "a": ["만성 피로", "근육통", "소화 불량", "스트레스/불면"], "s": [0, 0, 0, 0]},
-        {"q": "6. 하루 중 같은 자세로 있는 시간은?", "a": ["8시간 이상", "4~8시간", "4시간 미만"], "s": [0, 1, 2]},
-        {"q": "7. 일주일간 운동을 하는 횟수는?", "a": ["거의 안 함", "1~2회", "3회 이상"], "s": [0, 1, 2]}
+        {"q": "5. 일주일간 운동을 하는 횟수는?", "a": ["거의 안 함", "1~2회", "3회 이상"], "s": [0, 1, 2]}
     ];
 
     // 성별/연령대 선택 처리
@@ -174,7 +172,7 @@
         document.getElementById('survey-area').style.display = 'none';
         document.getElementById('result-area').style.display = 'block';
         
-        var final100 = Math.round((totalScore / 12) * 100); // 6개 유효문항 만점 12점 기준
+        var final100 = Math.round((totalScore / 20) * 100); // 6개 유효문항 만점 12점 기준
         if(final100 > 100) final100 = 100;
 
         var scoreVal = document.getElementById('final-score-val');
@@ -191,7 +189,7 @@
             scoreVal.style.color = "var(--success)";
             card.style.borderColor = "var(--success)";
             advice.innerHTML = "기혈 흐름이 원활합니다! 세미나를 통해 <b>'더 맑은 기운을 유지하는 법'</b>을 익혀보세요.";
-        } else if (final100 >= 50) {
+        } else if (final100 >= 60) {
             head.innerText = "⚠️ 에너지 불균형";
             head.style.backgroundColor = "var(--warning)";
             scoreVal.style.color = "var(--warning)";
