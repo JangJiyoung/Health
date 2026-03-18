@@ -18,17 +18,17 @@
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         #survey-content, #result-container { display: none; }
         
-        /* 결과 점수 강조 스타일 */
-        .big-score-area { margin-bottom: 20px; }
-        .score-label { font-size: 1rem; color: #888; font-weight: bold; margin-bottom: 5px; display: block; }
-        .big-score-num { font-size: 4.5rem; font-weight: 900; line-height: 1; margin: 10px 0; transition: color 0.5s; }
-        .score-unit { font-size: 1.2rem; font-weight: bold; margin-left: 5px; }
+        /* 100점 만점 점수 강조 스타일 (높을수록 건강함) */
+        .big-score-area { margin-bottom: 25px; }
+        .score-label { font-size: 1.1rem; color: #666; font-weight: bold; margin-bottom: 5px; display: block; }
+        .big-score-num { font-size: 5.5rem; font-weight: 900; line-height: 1; margin: 15px 0; transition: color 0.5s; letter-spacing: -2px; }
+        .score-unit { font-size: 1.5rem; font-weight: bold; margin-left: 2px; }
 
         /* 결과 리포트 카드 */
         .result-card { text-align: left; background: #fff; border-radius: 20px; border: 2px solid #eee; overflow: hidden; }
-        .result-header { padding: 20px; color: white; font-weight: bold; font-size: 1.2rem; text-align: center; }
-        .result-body { padding: 25px; line-height: 1.7; color: #555; font-size: 1rem; }
-        .user-info { font-size: 0.9rem; color: #aaa; margin-bottom: 8px; display: block; text-align: center; }
+        .result-header { padding: 18px; color: white; font-weight: bold; font-size: 1.25rem; text-align: center; }
+        .result-body { padding: 25px; line-height: 1.8; color: #444; font-size: 1.05rem; word-break: keep-all; }
+        .user-info { font-size: 0.95rem; color: #999; margin-bottom: 10px; display: block; text-align: center; }
 
         .footer-logo { margin-top: 40px; padding-top: 20px; border-top: 1px solid #f0f0f0; }
         .logo-box { font-weight: 900; font-size: 1.4rem; color: #2c3e50; }
@@ -40,7 +40,7 @@
 <div class="modal">
     <!-- 1단계: 인트로 -->
     <div id="intro-content">
-        <h2 style="color:var(--primary);">🌿 몸 건강 마음 건강<br>자가 진단 테스트</h2>
+        <h2 style="color:var(--primary);">🌿 몸 건강 마음 건강<br>기혈 순환 자가 진단</h2>
         <p style="text-align:left; font-size:0.95rem; font-weight:bold; margin-bottom:10px;">• 성별 선택</p>
         <div class="grid-2" style="margin-bottom:25px;">
             <button type="button" class="btn-option" onclick="handleInfo('gender', '남성')">남성</button>
@@ -64,10 +64,10 @@
         <div class="options" id="options-container"></div>
     </div>
 
-    <!-- 3단계: 결과 통합 리포트 (점수 상단 배치) -->
+    <!-- 3단계: 결과 통합 리포트 (높을수록 좋은 점수) -->
     <div id="result-container">
         <div class="big-score-area">
-            <span class="score-label">나의 종합 순환 점수</span>
+            <span class="score-label">나의 기혈 순환 점수</span>
             <div class="big-score-num" id="final-score-val">0<span class="score-unit">점</span></div>
         </div>
 
@@ -78,7 +78,7 @@
                 <div id="advice-text"></div>
             </div>
         </div>
-        <button onclick="location.reload()" style="margin-top:25px; padding:12px 30px; border:none; background:#eee; border-radius:30px; cursor:pointer; font-weight:bold; color:#777;">테스트 다시하기</button>
+        <button onclick="location.reload()" style="margin-top:25px; padding:12px 30px; border:none; background:#eee; border-radius:30px; cursor:pointer; font-weight:bold; color:#777; font-size:1rem;">다시 테스트하기</button>
     </div>
 
     <div class="footer-logo">
@@ -91,15 +91,17 @@
     var userData = { gender: '', age: '' };
     var currentIdx = 0;
     var totalScore = 0;
+    var maxPossibleRawScore = 14;
 
+    // 점수 체계 수정: 긍정적 답변(거의 없다/아니요)에 높은 점수 부여
     var questions = [
-        {"q": "1. 충분히 자도 아침에 몸이 무겁고 머리가 맑지 않은가요?", "a": ["매우 그렇다", "가끔 그렇다", "거의 없다"], "s": [2, 1, 0]},
-        {"q": "2. 식사 후 소화가 안 되거나 가스가 자주 차나요?", "a": ["자주 그렇다", "가끔 그렇다", "거의 없음"], "s": [2, 1, 0]},
-        {"q": "3. 손발이 차거나 특정 부위가 자주 붓는 편인가요?", "a": ["매우 그렇다", "가끔 그렇다", "거의 없다"], "s": [2, 1, 0]},
-        {"q": "4. 어깨/목을 눌렀을 때 비명이 나올 만큼 아픈가요?", "a": ["예", "아니요"], "s": [2, 0]},
-        {"q": "5. 가장 고민되는 신체 불편 증상은?", "a": ["만성 피로", "근육통", "소화 불량", "스트레스/불면"], "s": [2, 2, 2, 2]},
-        {"q": "6. 하루 중 같은 자세로 있는 시간은?", "a": ["8시간 이상", "4~8시간", "4시간 미만"], "s": [2, 1, 0]},
-        {"q": "7. 일주일간 운동을 하는 횟수는?", "a": ["거의 안 함", "1~2회", "3회 이상"], "s": [2, 1, 0]}
+        {"q": "1. 충분히 자도 아침에 몸이 무겁고 머리가 맑지 않은가요?", "a": ["매우 그렇다", "가끔 그렇다", "거의 없다"], "s": [0, 1, 2]},
+        {"q": "2. 식사 후 소화가 안 되거나 가스가 자주 차나요?", "a": ["자주 그렇다", "가끔 그렇다", "거의 없음"], "s": [0, 1, 2]},
+        {"q": "3. 손발이 차거나 특정 부위가 자주 붓는 편인가요?", "a": ["매우 그렇다", "가끔 그렇다", "거의 없다"], "s": [0, 1, 2]},
+        {"q": "4. 어깨/목을 눌렀을 때 비명이 나올 만큼 아픈가요?", "a": ["예", "아니요"], "s": [0, 2]},
+        {"q": "5. 가장 고민되는 신체 불편 증상은?", "a": ["만성 피로", "근육통", "소화 불량", "스트레스/불면"], "s": [0, 0, 0, 0]}, // 이 문항은 점수 합산에서 제외하거나 0점 처리
+        {"q": "6. 하루 중 같은 자세로 있는 시간은?", "a": ["8시간 이상", "4~8시간", "4시간 미만"], "s": [0, 1, 2]},
+        {"q": "7. 일주일간 운동을 하는 횟수는?", "a": ["거의 안 함", "1~2회", "3회 이상"], "s": [0, 1, 2]}
     ];
 
     function handleInfo(key, value) {
@@ -150,28 +152,32 @@
         var advice = document.getElementById('advice-text');
         var card = document.getElementById('result-card');
 
-        // 점수 텍스트 업데이트 (애니메이션 효과처럼 보이기 위해 직접 대입)
-        scoreVal.innerHTML = totalScore + '<span class="score-unit">점</span>';
-        userInfo.innerText = userData.age + " " + userData.gender + " 참가자 리포트";
+        // 100점 만점 환산 (정수)
+        var finalScore100 = Math.round((totalScore / 12) * 100); // 6개 유효 문항 만점 12점 기준
+        if(finalScore100 > 100) finalScore100 = 100;
         
-        if (totalScore >= 10) {
-            header.innerText = "🚨 기혈 정체 주의";
-            header.style.backgroundColor = "#ff4d4f";
-            scoreVal.style.color = "#ff4d4f";
-            card.style.borderColor = "#ff4d4f";
-            advice.innerHTML = "현재 순환 상태가 많이 정체되어 있습니다. 몸속 독소가 쌓이기 쉬운 상태이므로, 오늘 세미나에서 다룰 <b>'막힌 기운을 뚫어주는 경락법'</b>이 건강 회복의 핵심이 될 것입니다.";
-        } else if (totalScore >= 6) {
-            header.innerText = "⚠️ 에너지 불균형";
-            header.style.backgroundColor = "#faad14";
-            scoreVal.style.color = "#faad14";
-            card.style.borderColor = "#faad14";
-            advice.innerHTML = "순환 기운이 불안정하여 컨디션 기복이 큽니다. 근육 뭉침이나 부종이 만성화되기 전에 <b>'일상적인 자가 순환 관리'</b>를 습관화하는 것이 중요합니다.";
-        } else {
+        scoreVal.innerHTML = finalScore100 + '<span class="score-unit">점</span>';
+        userInfo.innerText = userData.age + " " + userData.gender + " 참가자 분석 리포트";
+        
+        // 건강 점수 기준 (높을수록 좋음)
+        if (finalScore100 >= 80) {
             header.innerText = "✅ 비교적 양호";
-            header.style.backgroundColor = "#52c41a";
-            scoreVal.style.color = "#52c41a";
-            card.style.borderColor = "#52c41a";
-            advice.innerHTML = "전반적인 기혈 흐름이 원활합니다. 하지만 방심은 금물! 세미나를 통해 <b>'더 맑은 기운을 유지하는 예방 경락법'</b>을 익혀 건강 지수를 높여보세요.";
+            header.style.backgroundColor = "var(--success)";
+            scoreVal.style.color = "var(--success)";
+            card.style.borderColor = "var(--success)";
+            advice.innerHTML = "전반적인 기혈 흐름이 매우 원활한 상태입니다! 지금의 좋은 습관을 유지하시되, 세미나를 통해 <b>'더 맑은 기운을 오래 유지하는 예방 경락법'</b>을 익혀 활력을 더해보세요.";
+        } else if (finalScore100 >= 50) {
+            header.innerText = "⚠️ 에너지 불균형";
+            header.style.backgroundColor = "var(--warning)";
+            scoreVal.style.color = "var(--warning)";
+            card.style.borderColor = "var(--warning)";
+            advice.innerHTML = "순환 기운이 다소 불안정하여 피로가 쉽게 쌓이는 상태입니다. 특정 부위가 굳어지기 전에 <b>'일상적인 자가 순환 관리'</b>를 습관화하여 기운을 북돋아 줄 필요가 있습니다.";
+        } else {
+            header.innerText = "🚨 기혈 정체 주의";
+            header.style.backgroundColor = "var(--danger)";
+            scoreVal.style.color = "var(--danger)";
+            card.style.borderColor = "var(--danger)";
+            advice.innerHTML = "현재 에너지 순환이 많이 정체되어 건강에 적신호가 켜진 상태입니다. 오늘 세미나에서 배울 <b>'막힌 기운을 즉각 뚫어주는 경락법'</b>이 참가자님께 가장 절실한 솔루션이 될 것입니다.";
         }
     }
 </script>
