@@ -89,7 +89,10 @@
                 <div id="advice-text"></div>
             </div>
         </div>
-        <button onclick="location.reload()" style="margin-top:25px; padding:12px 30px; border:none; background:#eee; border-radius:30px; cursor:pointer; font-weight:bold; color:#777;">다시 하기</button>
+        <div id="button-group" style="margin-top:25px; display: flex; gap: 10px; justify-content: center;">
+            <button onclick="location.reload()" style="padding:12px 20px; border:none; background:#eee; border-radius:30px; cursor:pointer; font-weight:bold; color:#777;">다시 하기</button>
+            <button onclick="openApplyModal()" style="padding:12px 25px; border:none; background:var(--primary); color:white; border-radius:30px; cursor:pointer; font-weight:bold;">세미나 신청하기</button>
+        </div>
     </div>
 
     <div class="footer-logo">
@@ -203,6 +206,53 @@
             advice.innerHTML = "현재 순환이 정체된 상태입니다. 세미나에서 배울 <b>'기운을 즉각 뚫어주는 경락법'</b>이 꼭 필요합니다.";
         }
     }
+
+    // 세미나 신청 팝업 및 데이터 전송
+    async function openApplyModal() {
+        const { value: formValues } = await Swal.fire({
+            title: '세미나 신청',
+            html:
+                '<input id="swal-input1" class="swal2-input" placeholder="성함">' +
+                '<input id="swal-input2" class="swal2-input" placeholder="연락처 (010-0000-0000)">',
+            focusConfirm: false,
+            confirmButtonText: '신청 완료',
+            showCancelButton: true,
+            preConfirm: () => {
+                const name = document.getElementById('swal-input1').value;
+                const phone = document.getElementById('swal-input2').value;
+                if (!name || !phone) {
+                    Swal.showValidationMessage('이름과 연락처를 모두 입력해주세요');
+                }
+                return { name: name, phone: phone };
+            }
+        });
+    
+        if (formValues) {
+            // 구글 시트로 전송할 데이터 구성
+            const payload = {
+                ...userData,
+                score: document.getElementById('final-score-val').innerText,
+                name: formValues.name,
+                phone: formValues.phone
+            };
+    
+            // 데이터 전송 (Google Apps Script Web App URL 입력)
+            const SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_URL'; 
+    
+            try {
+                Swal.showLoading();
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                
+                Swal.fire('신청 완료!', '세미나 담당자가 곧 연락드리겠습니다.', 'success');
+            } catch (error) {
+                Swal.fire('오류 발생', '데이터 전송에 실패했습니다. 다시 시도해주세요.', 'error');
+            }
+        }
+    }
+
 </script>
 </body>
 </html>
