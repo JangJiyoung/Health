@@ -40,6 +40,16 @@
         .footer-logo { margin-top: 40px; padding-top: 20px; border-top: 1px solid #f0f0f0; }
         .logo-box { font-weight: 900; font-size: 1.4rem; color: #2c3e50; }
         .logo-subtext { font-size: 0.85rem; color: #aaa; margin-top: 5px; }
+
+		.custom-swal-input {
+		    width: 80% !important; /* 너비를 80%로 제한 */
+		    height: 45px !important; /* 높이를 적절히 조절 */
+		    margin: 10px auto !important; /* 중앙 정렬 및 간격 */
+		    font-size: 0.95rem !important;
+		    border-radius: 10px !important;
+		    border: 1px solid #ddd !important;
+		    box-shadow: none !important;
+		}
     </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -208,56 +218,55 @@
     }
 
     // 세미나 신청 팝업 및 데이터 전송
-    async function openApplyModal() {
-    // 세미나 관련 이미지 URL (실제 이미지 주소로 교체하세요)
-		const seminarImg = "img/Semina_Health.png";
-
-		const { value: formValues } = await Swal.fire({
-			title: '기혈 순환 세미나 신청',
-			html: `
-				<img src="${seminarImg}" style="width:100%; border-radius:10px; margin-bottom:15px;">
-				<p style="font-size:0.9rem; color:#666; margin-bottom:15px;">나의 건강을 위한 첫 걸음, 지금 신청하세요!</p>
-				<input id="swal-input-name" class="swal2-input" placeholder="성함 입력">
-				<input id="swal-input-phone" class="swal2-input" placeholder="전화번호 (010-0000-0000)" maxlength="13">
-			`,
-			didOpen: () => {
-				const phoneInput = document.getElementById('swal-input-phone');
-				// 전화번호 자동 하이픈 로직
-				phoneInput.addEventListener('input', (e) => {
-					let val = e.target.value.replace(/[^0-9]/g, '');
-					if (val.length <= 3) {
-						e.target.value = val;
-					} else if (val.length <= 7) {
-						e.target.value = val.slice(0, 3) + '-' + val.slice(3);
-					} else {
-						e.target.value = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7, 11);
-					}
-				});
-			},
-			focusConfirm: false,
-			confirmButtonText: '신청하기',
-			confirmButtonColor: 'var(--primary)',
-			showCancelButton: true,
-			cancelButtonText: '취소',
-			preConfirm: () => {
-				const name = document.getElementById('swal-input-name').value;
-				const phone = document.getElementById('swal-input-phone').value;
-				// 유효성 검사 (성함 2자 이상, 전화번호 13자 형식)
-				if (!name || name.length < 2) {
-					Swal.showValidationMessage('성함을 정확히 입력해주세요.');
-					return false;
-				}
-				if (!phone || phone.length < 13) {
-					Swal.showValidationMessage('전화번호 형식을 확인해주세요. (010-0000-0000)');
-					return false;
-				}
-				return { name, phone };
-			}
-		});
-
-		if (formValues) {
-			sendToGoogleSheet(formValues);
-		}
+	async function openApplyModal() {
+	    const seminarImg = "실제_이미지_URL"; // 제작하신 이미지 주소
+	
+	    const { value: formValues } = await Swal.fire({
+	        title: '<span style="font-size:1.2rem;">세미나 신청</span>',
+	        html: `
+	            <div style="width:100%; overflow:hidden; border-radius:12px; margin-bottom:10px;">
+	                <img src="${seminarImg}" style="width:100%; display:block; object-fit:cover;">
+	            </div>
+	            <p style="font-size:0.85rem; color:#888; margin-bottom:15px;">정보를 입력하시면 담당자가 연락드립니다.</p>
+	            
+	            <!-- 클래스를 custom-swal-input으로 변경 -->
+	            <input id="swal-input-name" class="custom-swal-input" placeholder="성함 입력" style="display:block;">
+	            <input id="swal-input-phone" class="custom-swal-input" placeholder="전화번호 (010-0000-0000)" maxlength="13" style="display:block;">
+	        `,
+	        didOpen: () => {
+	            const phoneInput = document.getElementById('swal-input-phone');
+	            phoneInput.addEventListener('input', (e) => {
+	                let val = e.target.value.replace(/[^0-9]/g, '');
+	                if (val.length <= 3) e.target.value = val;
+	                else if (val.length <= 7) e.target.value = val.slice(0, 3) + '-' + val.slice(3);
+	                else e.target.value = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7, 11);
+	            });
+	        },
+	        confirmButtonText: '신청하기',
+	        confirmButtonColor: 'var(--primary)',
+	        showCancelButton: true,
+	        cancelButtonText: '취소',
+	        // 팝업창 자체의 너비도 모바일에 맞게 살짝 줄임
+	        width: '90%', 
+	        padding: '20px',
+	        preConfirm: () => {
+	            const name = document.getElementById('swal-input-name').value;
+	            const phone = document.getElementById('swal-input-phone').value;
+	            if (!name || name.length < 2) {
+	                Swal.showValidationMessage('성함을 정확히 입력해주세요.');
+	                return false;
+	            }
+	            if (!phone || phone.length < 13) {
+	                Swal.showValidationMessage('전화번호 13자리를 확인해주세요.');
+	                return false;
+	            }
+	            return { name, phone };
+	        }
+	    });
+	
+	    if (formValues) {
+	        sendToGoogleSheet(formValues);
+	    }
 	}
 	
 	async function sendToGoogleSheet(formValues) {
